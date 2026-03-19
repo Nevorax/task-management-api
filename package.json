@@ -1,0 +1,34 @@
+{
+  "name": "task-management-api",
+  "version": "1.0.0",
+  "description": "REST API for task management with authentication and PostgreSQL",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/Nevorax/task-management-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nevorax/task-management-api.git"
+  },
+  "keywords": [
+    "api",
+    "backend",
+    "tasks",
+    "nodejs"
+  ],
+  "author": "sebanev15",
+  "license": "MIT",
+  "type": "commonjs",
+  "homepage": "https://github.com/Nevorax/task-management-api#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
