@@ -1,8 +1,8 @@
 # Task Management API
 
-API REST para gestion de tareas construida con Node.js.
+API REST para gestion de tareas construida con Node.js y Express.
 
-Actualmente el proyecto esta en una etapa inicial y cuenta con una estructura base para empezar el desarrollo backend.
+Actualmente el proyecto esta en una etapa inicial, con estructura base y primeros endpoints de prueba.
 
 ## Estructura actual
 
@@ -10,9 +10,18 @@ Actualmente el proyecto esta en una etapa inicial y cuenta con una estructura ba
 task-management-api/
 |- src/
 |  |- app.js
+|  |- index.js
+|  |- config/
+|  |- controllers/
+|  |- middleware/
+|  |- models/
+|  |- routes/
+|  |  |- tasks.routes.js
+|  |- services/
 |- .env
 |- .gitignore
 |- LICENSE
+|- package-lock.json
 |- package.json
 |- README.md
 ```
@@ -21,6 +30,7 @@ task-management-api/
 
 - Node.js
 - npm
+- Express
 - JavaScript (CommonJS)
 
 ## Requisitos
@@ -36,17 +46,36 @@ npm install
 
 ## Scripts disponibles
 
-Por ahora, en [package.json](package.json), solo esta definido el script de prueba por defecto de npm:
+En [package.json](package.json) estan definidos:
 
 ```bash
+npm run dev
 npm test
 ```
 
+- npm run dev: inicia el servidor con nodemon desde src/index.js
+- npm test: script placeholder por defecto
+
+## Ejecucion local
+
+```bash
+npm run dev
+```
+
+Servidor local:
+
+```text
+http://localhost:3000
+```
+
+## Endpoints iniciales
+
+- GET / -> responde "API funcionando correctamente"
+- GET /tasks -> responde un JSON de prueba con mensaje "Lista de tareas"
+
 ## Configuracion de entorno
 
-El proyecto usa un archivo `.env` para variables de entorno.
-
-Ejemplo minimo sugerido:
+El proyecto incluye archivo .env. De momento el arranque usa PORT fijo en codigo (3000), pero puedes dejar preparada esta base:
 
 ```env
 PORT=3000
@@ -57,8 +86,9 @@ JWT_SECRET=tu_clave_secreta
 ## Estado del proyecto
 
 - Estructura inicial creada
-- Punto de entrada base en `src/app.js`
-- Pendiente: configurar servidor HTTP, base de datos, autenticacion y endpoints
+- Servidor Express configurado
+- Ruta base y ruta de tareas de prueba activas
+- Pendiente: conectar PostgreSQL, modularizar capas y agregar autenticacion
 
 ## Autor
 
