@@ -1,0 +1,26 @@
+{
+  "name": "task-management-api",
+  "version": "1.0.0",
+  "description": "REST API for task management with authentication and PostgreSQL",
+  "keywords": [
+    "api",
+    "backend",
+    "tasks",
+    "nodejs"
+  ],
+  "homepage": "https://github.com/Nevorax/task-management-api#readme",
+  "bugs": {
+    "url": "https://github.com/Nevorax/task-management-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nevorax/task-management-api.git"
+  },
+  "license": "MIT",
+  "author": "Agustín Montes de Oca",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
