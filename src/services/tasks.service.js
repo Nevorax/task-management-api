@@ -12,9 +12,12 @@ const createTask = (data) => {
     if (!data) {
         throw new Error('Task not found');
     }
+
+    const titleValue = String(data.title).trim();
+
     const taskObject = {
         id: idCounter,
-        title: data.title,
+        title: titleValue,
         completed: false,
     }
     idCounter++;
