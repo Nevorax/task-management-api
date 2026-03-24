@@ -20,6 +20,7 @@ const createTask = (data) => {
         title: titleValue,
         completed: false,
     }
+
     idCounter++;
     tasks.push(taskObject);
     return taskObject;

@@ -15,12 +15,17 @@ const getTasks = (req, res) => {
     res.json(tasks);
 }
 
-const createTask = (req, res) => {
+const createTask = (req, res, next) => {
     try {
+        if(req.body.title == null || req.body.title.length < 1) {
+            const error =  next(new Error('Tasks cannot have empty title'));
+            res.status(400).json("Tasks cannot have empty title");
+
+        }
         const newTask = taskService.createTask(req.body);
         res.status(201).json(newTask);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };
 

@@ -2,6 +2,9 @@ const express = require('express');
 
 const app = express();
 
+const errorMiddleware = require('./middlewares/error.middleware');
+
+app.use(errorMiddleware);
 app.use(express.json());
 
 app.get('/', (req, res) => {
