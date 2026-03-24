@@ -3,59 +3,18 @@ let idCounter = 1;
 const express = require('express');
 const router = express.Router();
 
-router.post('/', (req, res) => {
-  const { title } = req.body;
+const {
+  getTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask
+} = require('../controllers/tasks.controller');
 
-  const newTask = {
-    id: idCounter++,
-    title,
-    completed: false
-  };
-
-  tasks.push(newTask);
-
-  res.status(201).json(newTask);
-});
-
-router.get('/:id', (req, res) => {
-  const task = tasks.find(t => t.id == req.params.id);
-
-  if (!task) {
-    return res.status(404).json({ message: 'Task not found' });
-  }
-
-  res.json(task);
-});
-
-router.put('/:id', (req, res) => {
-  const task = tasks.find(t => t.id == req.params.id);
-
-  if (!task) {
-    return res.status(404).json({ message: 'Task not found' });
-  }
-
-  const { title, completed } = req.body;
-
-  if (title !== undefined) task.title = title;
-  if (completed !== undefined) task.completed = completed;
-
-  res.json(task);
-});
-
-router.delete('/:id', (req, res) => {
-  const index = tasks.findIndex(t => t.id == req.params.id);
-
-  if (index === -1) {
-    return res.status(404).json({ message: 'Task not found' });
-  }
-
-  tasks.splice(index, 1);
-
-  res.json({ message: 'Task deleted' });
-});
-
-router.get('/', (req, res) => {
-  res.json(tasks);
-});
+router.get('/', getTasks);
+router.get('/:id', getTaskById);
+router.post('/', createTask);
+router.put('/:id', updateTask);
+router.delete('/:id', deleteTask);
 
 module.exports = router;
