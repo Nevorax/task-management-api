@@ -1,4 +1,5 @@
 const express = require('express');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -11,5 +12,8 @@ app.get('/', (req, res) => {
 const taskRoutes = require('./routes/tasks.routes');
 
 app.use('/tasks', taskRoutes);
+
+// Middleware global de errores
+app.use(errorHandler);
 
 module.exports = app;

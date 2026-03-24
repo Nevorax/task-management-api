@@ -9,8 +9,14 @@ const getTaskById = (id) => {
   return tasks.find(t => t.id == id);
 };
 
-const createTask = (title) => {
-  const safeTitle = String(title).trim();
+const createTask = (data = {}) => {
+  const safeTitle = String(data.title || '').trim();
+
+  if (!safeTitle) {
+    const error = new Error('Title is required');
+    error.status = 400;
+    throw error;
+  }
 
   const newTask = {
     id: idCounter++,
@@ -26,11 +32,23 @@ const createTask = (title) => {
 const updateTask = (id, data = {}) => {
   const task = tasks.find(t => t.id == id);
 
-  if (!task) return null;
+  if (!task) {
+    const error = new Error('Task not found');
+    error.status = 404;
+    throw error;
+  }
 
   const { title, completed } = data;
 
-  if (title !== undefined) task.title = String(title).trim();
+  if (title !== undefined) {
+    const safeTitle = String(title).trim();
+    if (!safeTitle) {
+      const error = new Error('Title cannot be empty');
+      error.status = 400;
+      throw error;
+    }
+    task.title = safeTitle;
+  }
   if (completed !== undefined) task.completed = completed;
 
   return task;
@@ -39,7 +57,11 @@ const updateTask = (id, data = {}) => {
 const deleteTask = (id) => {
   const index = tasks.findIndex(t => t.id == id);
 
-  if (index === -1) return false;
+  if (index === -1) {
+    const error = new Error('Task not found');
+    error.status = 404;
+    throw error;
+  }
 
   tasks.splice(index, 1);
 
