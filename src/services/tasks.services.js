@@ -1,39 +1,83 @@
 const prisma = require('../config/prisma');
 
 const getAllTasks = async () => {
-  return await prisma.task.findMany();
+  try {
+    return await prisma.task.findMany();
+  } catch (error) {
+    const err = new Error('Error retrieving tasks');
+    err.status = 500;
+    throw err;
+  }
 };
 
 const getTaskById = async (id) => {
-  return await prisma.task.findUnique({
-    where: { id: Number(id) }
-  });
+  try {
+    return await prisma.task.findUnique({
+      where: { id: Number(id) }
+    });
+  } catch (error) {
+    const err = new Error('Error retrieving task');
+    err.status = 500;
+    throw err;
+  }
 };
 
 const createTask = async (data) => {
   if (!data.title) {
-    throw new Error('Title is required');
+    const err = new Error('Title is required');
+    err.status = 400;
+    throw err;
   }
 
-  return await prisma.task.create({
-    data: {
-      title: data.title,
-      completed: false
-    }
-  });
+  try {
+    return await prisma.task.create({
+      data: {
+        title: data.title,
+        completed: false
+      }
+    });
+  } catch (error) {
+    const err = new Error('Error creating task');
+    err.status = 500;
+    throw err;
+  }
 };
 
 const updateTask = async (id, data) => {
-  return await prisma.task.update({
-    where: { id: Number(id) },
-    data
-  });
+  try {
+    return await prisma.task.update({
+      where: { id: Number(id) },
+      data
+    });
+  } catch (error) {
+    // P2025: Prisma error for record not found
+    if (error.code === 'P2025') {
+      const err = new Error('Task not found');
+      err.status = 404;
+      throw err;
+    }
+    const err = new Error('Error updating task');
+    err.status = 500;
+    throw err;
+  }
 };
 
 const deleteTask = async (id) => {
-  return await prisma.task.delete({
-    where: { id: Number(id) }
-  });
+  try {
+    return await prisma.task.delete({
+      where: { id: Number(id) }
+    });
+  } catch (error) {
+    // P2025: Prisma error for record not found
+    if (error.code === 'P2025') {
+      const err = new Error('Task not found');
+      err.status = 404;
+      throw err;
+    }
+    const err = new Error('Error deleting task');
+    err.status = 500;
+    throw err;
+  }
 };
 
 module.exports = {

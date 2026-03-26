@@ -29,14 +29,20 @@ const createTask = asyncHandler(async (req, res) => {
 
 // PUT /tasks/:id
 const updateTask = asyncHandler(async (req, res) => {
-  const updated = await taskService.updateTask(req.params.id, req.body || {});
+  if (!req.body || (req.body.title === undefined && req.body.completed === undefined)) {
+    const error = new Error('At least one field (title or completed) is required');
+    error.status = 400;
+    throw error;
+  }
+  
+  const updated = await taskService.updateTask(req.params.id, req.body);
   res.json(updated);
 });
 
 // DELETE /tasks/:id
 const deleteTask = asyncHandler(async (req, res) => {
   await taskService.deleteTask(req.params.id);
-  res.json({ message: 'Task deleted' });
+  res.status(200).json({ message: 'Task deleted successfully' });
 });
 
 module.exports = {
