@@ -1,94 +1,181 @@
 # Task Management API
 
-API REST para gestion de tareas construida con Node.js y Express.
+API REST para gestión de tareas construida con Node.js, Express y Prisma ORM, conectada a PostgreSQL.
 
-Actualmente el proyecto esta en una etapa inicial, con estructura base y primeros endpoints de prueba.
+## Descripción
 
-## Estructura actual
+API robusta para crear, leer, actualizar y eliminar tareas con persistencia en base de datos, manejo automático de errores y validación de datos.
 
-```text
-task-management-api/
-|- src/
-|  |- app.js
-|  |- index.js
-|  |- config/
-|  |- controllers/
-|  |- middleware/
-|  |- models/
-|  |- routes/
-|  |  |- tasks.routes.js
-|  |- services/
-|- .env
-|- .gitignore
-|- LICENSE
-|- package-lock.json
-|- package.json
-|- README.md
-```
+## Tech Stack
 
-## Tecnologias base
-
-- Node.js
-- npm
-- Express
-- JavaScript (CommonJS)
+- **Node.js** 18+ (runtime)
+- **Express** 5.x (framework web)
+- **Prisma** 6.x (ORM)
+- **PostgreSQL** (base de datos)
+- **Nodemon** (desarrollo)
 
 ## Requisitos
 
-- Node.js 18+ recomendado
-- npm 9+ recomendado
+- Node.js 18+
+- npm 9+
+- PostgreSQL 12+
 
-## Instalacion
+## Instalación
 
 ```bash
+# Clonar o descargar el repositorio
+git clone <repo-url>
+
+# Instalar dependencias
 npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+
+# Ejecutar migraciones de base de datos
+npx prisma migrate dev
 ```
 
-## Scripts disponibles
+## Configuración de Entorno
 
-En [package.json](package.json) estan definidos:
-
-```bash
-npm run dev
-npm test
-```
-
-- npm run dev: inicia el servidor con nodemon desde src/index.js
-- npm test: script placeholder por defecto
-
-## Ejecucion local
-
-```bash
-npm run dev
-```
-
-Servidor local:
-
-```text
-http://localhost:3000
-```
-
-## Endpoints iniciales
-
-- GET / -> responde "API funcionando correctamente"
-- GET /tasks -> responde un JSON de prueba con mensaje "Lista de tareas"
-
-## Configuracion de entorno
-
-El proyecto incluye archivo .env. De momento el arranque usa PORT fijo en codigo (3000), pero puedes dejar preparada esta base:
+Crear archivo `.env` en la raíz del proyecto:
 
 ```env
 PORT=3000
-DATABASE_URL=postgresql://usuario:password@localhost:5432/task_management
-JWT_SECRET=tu_clave_secreta
+DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/task_management"
+NODE_ENV=development
 ```
 
-## Estado del proyecto
+## Scripts Disponibles
 
-- Estructura inicial creada
-- Servidor Express configurado
-- Ruta base y ruta de tareas de prueba activas
-- Pendiente: conectar PostgreSQL, modularizar capas y agregar autenticacion
+```bash
+# Modo desarrollo (con hot reload)
+npm run dev
+
+# Ejecutar migraciones
+npx prisma migrate dev
+
+# Visualizar base de datos
+npx prisma studio
+
+# Pruebas (placeholder)
+npm test
+```
+
+## Estructura del Proyecto
+
+```text
+src/
+├── app.js                 # Configuración de Express
+├── index.js              # Punto de entrada
+├── config/
+│   └── prisma.js         # Instancia de PrismaClient
+├── controllers/
+│   └── tasks.controller.js # Controladores de tareas
+├── middleware/
+│   ├── asyncHandler.js   # Wrapper para async/await
+│   └── errorHandler.js   # Manejo global de errores
+├── routes/
+│   └── tasks.routes.js   # Rutas de tareas
+└── services/
+    └── tasks.services.js # Lógica de negocio y Prisma
+prisma/
+├── schema.prisma         # Definición de modelos
+└── migrations/           # Historial de cambios de BD
+```
+
+## Arquitectura
+
+La aplicación sigue una arquitectura en capas:
+
+1. **Controllers** → Maneja peticiones HTTP
+2. **Services** → Contiene lógica de negocio y acceso a datos (Prisma)
+3. **Middleware** → `asyncHandler` y `errorHandler` para gestión centralizada de errores
+4. **Routes** → Define endpoints
+
+### Manejo de Errores
+
+- **asyncHandler**: Captura automáticamente errores en funciones async
+- **errorHandler**: Middleware global que formatea respuestas de error con status HTTP apropiados
+- **Validación en servicio**: Try-catch con manejo especifico de errores de Prisma (P2025 = registro no encontrado)
+
+## API Endpoints
+
+### Tasks
+
+| Método | Endpoint | Descripción | Status |
+|--------|----------|-------------|--------|
+| GET | `/tasks` | Obtener todas las tareas | 200 |
+| GET | `/tasks/:id` | Obtener tarea por ID | 200/404 |
+| POST | `/tasks` | Crear nueva tarea | 201/400 |
+| PUT | `/tasks/:id` | Actualizar tarea | 200/400/404 |
+| DELETE | `/tasks/:id` | Eliminar tarea | 200/404 |
+
+### Ejemplos de Uso
+
+**Obtener todas las tareas:**
+```bash
+curl http://localhost:3000/tasks
+```
+
+**Crear una tarea:**
+```bash
+curl -X POST http://localhost:3000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Mi tarea"}'
+```
+
+**Actualizar una tarea:**
+```bash
+curl -X PUT http://localhost:3000/tasks/1 \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Tarea actualizada","completed":true}'
+```
+
+**Eliminar una tarea:**
+```bash
+curl -X DELETE http://localhost:3000/tasks/1
+```
+
+## Base de Datos
+
+### Modelo Task
+
+```prisma
+model Task {
+  id        Int     @id @default(autoincrement())
+  title     String
+  completed Boolean @default(false)
+}
+```
+
+## Ejecución Local
+
+```bash
+# Instalar dependencias
+npm install
+
+# Configurar .env con DATABASE_URL
+
+# Ejecutar migraciones
+npx prisma migrate dev
+
+# Iniciar servidor
+npm run dev
+```
+
+El servidor estará disponible en `http://localhost:3000`
+
+## Posibles Mejoras Futuras
+
+- [ ] Autenticación (JWT)
+- [ ] Timestamps (createdAt, updatedAt)
+- [ ] Paginación en listados
+- [ ] Filtros y búsqueda
+- [ ] Pruebas unitarias e integración
+- [ ] Documentación OpenAPI/Swagger
+- [ ] Rate limiting
+- [ ] Validación de datos con Zod/Joi
 
 ## Autor
 
