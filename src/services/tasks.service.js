@@ -1,46 +1,61 @@
-let tasks = [];
-let idCounter = 1;
+const prisma = require('../config/prisma');
 
-const getTaskById = (id) => {
-    return tasks.find(t => t.id == id);
+
+const getTaskById = async (id) => {
+    return prisma.task.findUnique({
+        where: {
+            id: Number(id)
+        }
+    });
 };
-const getTasks = () => {
-    return tasks;
-}
 
-const createTask = (data) => {
-    if (!data) {
-        throw new Error('Task not found');
+const getTasks = async () => {
+    const tasksDatabase = await prisma.task.findMany();
+    return tasksDatabase;
+};
+
+const createTask = async (data) => {
+
+    const taskDatabase = await prisma.task.create({
+        data: {
+            title: data.title,
+            completed: false
+        }
+    });
+
+    if (error.code === 'P2025') {
+        return res.status(404).json({ message: 'Task not found' });
     }
 
-    const titleValue = String(data.title).trim();
-
-    const taskObject = {
-        id: idCounter,
-        title: titleValue,
-        completed: false,
-    }
-
-    idCounter++;
-    tasks.push(taskObject);
-    return taskObject;
-}
-
-const updateTask = (task, data) => {
-    if (data.title !== undefined) task.title = data.title;
-    if (data.completed !== undefined) task.completed = data.completed;
-
-    return task;
+    return taskDatabase;
 };
 
-const deleteTask = (id) => {
-    const index = tasks.findIndex(t => t.id == id);
+const  updateTask = async (id, data) => {
+    if (data.title === undefined) throw new Error('Title is required');
+    if (data.completed === undefined) throw new Error('state is required');
 
-    if (index === -1) return null;
 
-    tasks.splice(index, 1);
-    return "Task "+ id +" deleted successfully";
+    return prisma.task.update({
+        where: {
+            id: Number(id),
+        },
+        data: {
+            title: data.title,
+            completed: data.completed
+        }
+    });
 };
+
+const deleteTask = async (id) => {
+
+    await prisma.task.delete({
+        where: {
+            id: Number(id),
+        }
+    })
+    return {message:`Task with ID ${Number(id)} has been deleted`};
+};
+
 module.exports = {
     getTaskById,
     getTasks,

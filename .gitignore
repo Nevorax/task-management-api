@@ -1,21 +1,52 @@
-.idea
+# Dependencies
 node_modules/
-.env
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Entornos locales
-.env.*
+# Environment variables
+.env
+.env.local
+.env.*.local
 !.env.example
 
-# Prisma client generado
-/src/generated/prisma/
+# IDE y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.iml
+.DS_Store
+Thumbs.db
 
-# Logs y reportes locales
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-coverage/
+lerna-debug.log*
 
-# Archivos del sistema
-.DS_Store
-Thumbs.db
+# Build outputs
+dist/
+build/
+out/
+.next/
+
+# Prisma
+.prisma/
+src/generated/prisma/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporal
+tmp/
+temp/
+*.tmp
