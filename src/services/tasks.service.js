@@ -14,22 +14,19 @@ const getTasks = async () => {
     return tasksDatabase;
 };
 
-const createTask = async (data) => {
-
-    const taskDatabase = await prisma.task.create({
-        data: {
-            title: data.title,
-            completed: false
-        }
-    });
-
-    if (error.code === 'P2025') {
-        return res.status(404).json({ message: 'Task not found' });
+const createTask = async (data, userId) => {
+    if (!data.title) {
+        throw new Error('Title is required');
     }
 
-    return taskDatabase;
+    return prisma.task.create({
+        data: {
+            title: data.title,
+            completed: false,
+            userId: userId // 👈 se guarda en DB
+        }
+    });
 };
-
 const  updateTask = async (id, data) => {
     if (data.title === undefined) throw new Error('Title is required');
     if (data.completed === undefined) throw new Error('state is required');

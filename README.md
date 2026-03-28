@@ -1,391 +1,234 @@
 # task-management-api
 
-API REST de gestión de tareas construida con Node.js + Express + PostgreSQL + Prisma ORM.
+API REST para gestion de tareas con autenticacion JWT, Node.js, Express, PostgreSQL y Prisma.
 
-> Estado actual: CRUD de tareas con base de datos PostgreSQL persistente.
+## Estado actual
 
-## Características
+- CRUD de tareas persistido en PostgreSQL.
+- Registro y login de usuarios.
+- `POST /tasks` protegido con token JWT.
+- Prisma v7 configurado con `prisma.config.ts`.
 
-- API HTTP con Express.js
-- Base de datos PostgreSQL con Prisma ORM
-- CRUD completo de tareas con persistencia
-- Validación de datos en capas
-- Middleware de manejo de errores global
-- Arquitectura por capas: `routes` -> `controllers` -> `services` -> `Prisma`
-- Configuración de conexión a BD mediante variables de entorno
+## Stack
 
-## Stack Tecnológico
+- Node.js `20.19+`, `22.12+` o `24+`
+- Express `5.2.1`
+- Prisma `7.6.0` + `@prisma/client 7.6.0`
+- PostgreSQL + `pg`
+- JWT con `jsonwebtoken`
+- Hash de passwords con `bcrypt`
+- Entorno con `dotenv`
 
-- **Runtime:** Node.js 20.19+ (CommonJS)
-- **Framework:** Express.js v5.2.1
-- **Base de Datos:** PostgreSQL
-- **ORM:** Prisma v7.5.0
-- **Adaptador:** Prisma Adapter for PostgreSQL
-- **Cliente PostgreSQL:** pg v8.20.0
-- **Desarrollo:** Nodemon v3.1.14
-- **CORS:** cors v2.8.6
-- **Variables de Entorno:** dotenv
-
-## Estructura del Proyecto
+## Estructura del proyecto
 
 ```text
 task-management-api/
 ├── prisma/
-│   ├── schema.prisma        # Esquema de BD de Prisma
-│   └── migrations/          # Historial de migraciones
+│   ├── schema.prisma
+│   └── migrations/
 ├── src/
+│   ├── app.js
+│   ├── index.js
 │   ├── config/
-│   │   ├── config.js        # Configuración de la aplicación
-│   │   └── prisma.js        # Inicialización del cliente Prisma
+│   │   └── prisma.js
 │   ├── controllers/
-│   │   └── tasks.controller.js
-│   ├── services/
-│   │   └── tasks.service.js
-│   ├── routes/
-│   │   └── tasks.routes.js
+│   │   ├── tasks.controller.js
+│   │   └── users.controller.js
 │   ├── middlewares/
+│   │   ├── auth.middleware.js
 │   │   └── error.middleware.js
-│   ├── app.js               # Configuración de Express
-│   └── index.js             # Punto de entrada
-├── .env.example             # Variables de entorno (ejemplo)
-├── .gitignore
+│   ├── routes/
+│   │   ├── tasks.routes.js
+│   │   └── users.routes.js
+│   └── services/
+│       ├── tasks.service.js
+│       └── users.service.js
+├── prisma.config.ts
+├── .env.example
 ├── package.json
-├── prisma.config.ts         # Configuración de Prisma v7
 └── README.md
 ```
 
-## Requisitos Previos
+## Requisitos
 
-- **Node.js:** 20.19+, 22.12+, o 24.0+ (requerido por Prisma v7)
-- **npm:** v10.8.0 o superior
-- **PostgreSQL:** Base de datos configurada y accesible
+- Node.js compatible con Prisma 7 (`20.19+`, `22.12+`, `24+`).
+- PostgreSQL corriendo local o remoto.
+- Base de datos creada (ejemplo: `tasksdb`).
 
-## Instalación
+## Instalacion
 
-### 1. Clonar el repositorio
+1. Clonar e instalar dependencias:
 
 ```bash
 git clone https://github.com/Nevorax/task-management-api.git
 cd task-management-api
-```
-
-### 2. Instalar dependencias
-
-```bash
 npm install
 ```
 
-### 3. Configurar variables de entorno
-
-Crea un archivo `.env` en la raíz del proyecto:
+2. Crear el archivo `.env` a partir del ejemplo:
 
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` y configura la conexión a PostgreSQL:
+En Windows PowerShell, si no tienes `cp`:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+3. Configurar `DATABASE_URL` en `.env`:
 
 ```env
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/task_management"
+DATABASE_URL="postgresql://usuario:password@localhost:5432/tasksdb"
 ```
 
-### 4. Ejecutar migraciones de BD
+4. Ejecutar migraciones y generar cliente Prisma:
 
 ```bash
-npx prisma migrate dev --name init
-```
-
-Esto creará las tablas en la BD según el esquema definido en `prisma/schema.prisma`.
-
-### 5. Generar cliente Prisma
-
-```bash
+npx prisma migrate dev
 npx prisma generate
 ```
 
-## Ejecutar en Desarrollo
+5. Iniciar el servidor en desarrollo:
 
 ```bash
 npm run dev
 ```
 
-El servidor inicia en: `http://localhost:3000`
+Servidor por defecto: `http://localhost:3000`
 
-## Endpoints de la API
+## Prisma 7: nota importante
+
+Con Prisma 7, la URL de conexion de datasource se define en `prisma.config.ts`, no en `prisma/schema.prisma`.
+
+El proyecto ya esta configurado asi:
+
+- `prisma.config.ts` lee `DATABASE_URL` con `env("DATABASE_URL")`.
+- `prisma/schema.prisma` mantiene `datasource db { provider = "postgresql" }` sin `url`.
+
+## Modelo de datos
+
+### `User`
+
+- `id` (Int, autoincremental)
+- `email` (String, unico)
+- `password` (String, hash)
+
+### `Task`
+
+- `id` (Int, autoincremental)
+- `title` (String)
+- `completed` (Boolean, default `false`)
+- `userId` (Int, requerido)
+
+Relacion: un `User` tiene muchas `Task`.
+
+## Endpoints
 
 Base URL: `http://localhost:3000`
 
-### 1. Health Check
+### Health
 
-**GET** `/`
+- `GET /`
 
-Verifica que la API está activa.
+Respuesta:
 
-**Respuesta 200:**
 ```text
-API funcionando 🚀
+API funcionando
 ```
 
----
+### Usuarios
 
-### 2. Listar todas las tareas
+- `POST /users/auth/register`
+- `POST /users/auth/login`
 
-**GET** `/tasks`
+#### Registro - ejemplo body
 
-Obtiene todas las tareas registradas en la BD.
-
-**Respuesta 200:**
-```json
-[
-  {
-    "id": 1,
-    "title": "Aprender Express",
-    "completed": false
-  },
-  {
-    "id": 2,
-    "title": "Aprender Prisma",
-    "completed": true
-  }
-]
-```
-
----
-
-### 3. Obtener una tarea por ID
-
-**GET** `/tasks/:id`
-
-Obtiene los detalles de una tarea específica.
-
-**Ejemplo de solicitud:**
-```
-GET /tasks/1
-```
-
-**Respuesta 200:**
 ```json
 {
-  "id": 1,
-  "title": "Aprender Express",
-  "completed": false
+  "email": "user@mail.com",
+  "password": "123456"
 }
 ```
 
-**Respuesta 404 (tarea no encontrada):**
+#### Login - ejemplo body
+
 ```json
 {
-  "message": "Task not found"
+  "email": "user@mail.com",
+  "password": "123456"
 }
 ```
 
----
+Respuesta esperada:
 
-### 4. Crear una nueva tarea
-
-**POST** `/tasks`
-
-Crea una nueva tarea en la BD.
-
-**Body (ejemplo):**
 ```json
 {
-  "title": "Completar proyecto"
+  "token": "<jwt_token>"
 }
 ```
 
-**Respuesta 201 (creada):**
+### Tareas
+
+- `GET /tasks`
+- `GET /tasks/:id`
+- `POST /tasks` (requiere token)
+- `PUT /tasks/:id`
+- `DELETE /tasks/:id`
+
+#### Header para rutas protegidas
+
+Se recomienda este formato:
+
+```http
+Authorization: Bearer <token>
+```
+
+Tambien se acepta token crudo en `Authorization` por compatibilidad.
+
+#### Crear tarea - ejemplo
+
 ```json
 {
-  "id": 3,
-  "title": "Completar proyecto",
-  "completed": false
+  "title": "Terminar README"
 }
 ```
 
-**Respuesta 400 (título vacío o inválido):**
-```json
-{
-  "message": "Title is required"
-}
-```
+## Errores comunes
 
----
+### Prisma y version de Node
 
-### 5. Actualizar una tarea
+Si aparece error de version de Node con Prisma, instala una version compatible (`20.19+`, `22.12+` o `24+`).
 
-**PUT** `/tasks/:id`
+### `@prisma/client did not initialize yet`
 
-Actualiza el título y/o estado de completado de una tarea existente.
-
-**Body (ejemplo):**
-```json
-{
-  "title": "Proyecto completado",
-  "completed": true
-}
-```
-
-**Respuesta 200:**
-```json
-{
-  "id": 1,
-  "title": "Proyecto completado",
-  "completed": true
-}
-```
-
-**Respuesta 404 (tarea no encontrada):**
-```json
-{
-  "message": "Task not found"
-}
-```
-
----
-
-### 6. Eliminar una tarea
-
-**DELETE** `/tasks/:id`
-
-Elimina permanentemente una tarea de la BD.
-
-**Ejemplo de solicitud:**
-```
-DELETE /tasks/1
-```
-
-**Respuesta 200:**
-```json
-{
-  "message": "Task with ID 1 has been deleted"
-}
-```
-
-**Respuesta 404 (tarea no encontrada):**
-```json
-{
-  "message": "Task not found"
-}
-```
-
----
-
-## Manejo de Errores
-
-La API cuenta con un middleware global de errores que captura excepciones y devuelve respuestas consistentes:
-
-- **400 Bad Request:** Validación fallida o parámetros inválidos
-- **404 Not Found:** Recurso no encontrado en BD
-- **500 Internal Server Error:** Error del servidor
-
-## Desarrollo
-
-### Comandos útiles
-
-```bash
-# Iniciar en modo desarrollo con nodemon
-npm run dev
-
-# Generar cliente Prisma (después de cambios en schema.prisma)
-npx prisma generate
-
-# Crear nueva migración de BD
-npx prisma migrate dev --name nombre_de_migracion
-
-# Ver interfaz visual de BD (Prisma Studio)
-npx prisma studio
-
-# Verificar estado de la BD
-npx prisma migrate status
-```
-
-## Variables de Entorno
-
-Crea un archivo `.env` con las siguientes variables:
-
-```env
-# PostgreSQL
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/task_management"
-
-# Express (opcional)
-PORT=3000
-NODE_ENV=development
-```
-
-## Notas de Desarrollo
-
-- La API utiliza Prisma ORM para abstraer las operaciones con BD
-- Las migraciones se almacenan en `prisma/migrations/`
-- El esquema de BD está definido en `prisma/schema.prisma`
-- Cambios en el esquema requieren ejecutar `npx prisma migrate dev`
-- El cliente Prisma se auto-genera en `src/generated/prisma/`
-
-Ejemplo `200`:
-
-```json
-"Task 1 deleted successfully"
-```
-
-## Ejemplos rapidos con curl
-
-```bash
-# Health check
-curl http://localhost:3000/
-
-# Crear tarea
-curl -X POST http://localhost:3000/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Mi primera tarea"}'
-
-# Listar tareas
-curl http://localhost:3000/tasks
-
-# Actualizar tarea
-curl -X PUT http://localhost:3000/tasks/1 \
-  -H "Content-Type: application/json" \
-  -d '{"completed":true}'
-
-# Eliminar tarea
-curl -X DELETE http://localhost:3000/tasks/1
-```
-
-## Scripts disponibles
-
-- `npm run dev`: inicia el servidor con `nodemon` usando `src/index.js`.
-
-## Próximas Mejoras Planeadas
-
-- ✅ Integración con PostgreSQL y Prisma ORM
-- ⏳ Autenticación (JWT) e identificación de usuario
-- ⏳ Autorización basada en roles
-- ⏳ Paginación y filtros de búsqueda
-- ⏳ Tests unitarios e integración
-- ⏳ Documentación OpenAPI/Swagger
-- ⏳ Validación avanzada con schemas
-- ⏳ Rate limiting
-
-## Solución de Problemas
-
-### Error: "Prisma only supports Node.js versions 20.19+, 22.12+, 24.0+"
-
-Debes actualizar Node.js a una versión compatible. Descarga desde [nodejs.org](https://nodejs.org).
-
-### Error: "Cannot find module @prisma/client"
+Ejecuta:
 
 ```bash
 npx prisma generate
+```
+
+### `Cannot find module ...`
+
+Ejecuta:
+
+```bash
 npm install
 ```
 
-### Error de conexión a PostgreSQL
+## Scripts
 
-Verifica que PostgreSQL está corriendo y que las credenciales en `.env` son correctas.
+- `npm run dev`: inicia la API con nodemon.
+
+## Variables de entorno
+
+`.env` minimo requerido:
+
+```env
+DATABASE_URL="postgresql://usuario:password@localhost:5432/tasksdb"
+```
 
 ## Licencia
 
-MIT - Ver [LICENSE](LICENSE)
-
-## Autor
-
-**Sebastian Neves** - [@Nevorax](https://github.com/Nevorax)
+MIT. Ver `LICENSE`.
