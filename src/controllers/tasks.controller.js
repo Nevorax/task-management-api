@@ -21,11 +21,18 @@ const getTaskById = asyncHandler(async (req, res) => {
 });
 
 // POST /tasks
-const createTask = asyncHandler(async (req, res) => {
-  const data = req.body || {};
-  const newTask = await taskService.createTask(data);
-  res.status(201).json(newTask);
-});
+const createTask = async (req, res, next) => {
+  try {
+    const newTask = await taskService.createTask(
+      req.body || {},
+      req.user.id
+    );
+
+    res.status(201).json(newTask);
+  } catch (error) {
+    next(error);
+  }
+};
 
 // PUT /tasks/:id
 const updateTask = asyncHandler(async (req, res) => {

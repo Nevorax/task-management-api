@@ -22,9 +22,15 @@ const getTaskById = async (id) => {
   }
 };
 
-const createTask = async (data) => {
+const createTask = async (data, userId) => {
   if (!data.title) {
     const err = new Error('Title is required');
+    err.status = 400;
+    throw err;
+  }
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    const err = new Error('UserId is required and must be a positive integer');
     err.status = 400;
     throw err;
   }
@@ -33,7 +39,8 @@ const createTask = async (data) => {
     return await prisma.task.create({
       data: {
         title: data.title,
-        completed: false
+        completed: false,
+        userId: userId
       }
     });
   } catch (error) {

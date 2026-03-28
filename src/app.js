@@ -10,8 +10,10 @@ app.get('/', (req, res) => {
 });
 
 const taskRoutes = require('./routes/tasks.routes');
+const userRoutes = require('./routes/users.routes');
 
 app.use('/tasks', taskRoutes);
+app.use('/users', userRoutes);
 
 // Middleware global de errores
 app.use(errorHandler);
